@@ -3,11 +3,27 @@ from telegram import Update
 from telegram.ext import ApplicationBuilder, CommandHandler, ContextTypes
 import requests
 from dotenv import load_dotenv
+from flask import Flask
+import threading
 
 # Cargar variables de entorno desde el archivo .env
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
+
+# Servidor web para keep alive
+app_web = Flask('')
+
+@app_web.route('/')
+def home():
+    return "Bot activo"
+
+def run():
+    app_web.run(host='0.0.0.0', port=8080)
+
+def keep_alive():
+    t = threading.Thread(target=run)
+    t.start()
 
 def icono_clima(desc: str) -> str:
     desc = desc.lower()
@@ -73,6 +89,7 @@ async def clima(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_markdown(mensaje)
 
 if __name__ == '__main__':
+    keep_alive()
     app = ApplicationBuilder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("help", help_command))
