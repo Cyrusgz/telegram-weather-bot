@@ -22,6 +22,7 @@ def run_flask():
 
 def start_flask():
     thread = threading.Thread(target=run_flask)
+    thread.daemon = True
     thread.start()
 
 def icono_clima(desc: str) -> str:
@@ -58,15 +59,14 @@ async def clima(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
         await update.message.reply_text("Por favor, escribe una ciudad. Ejemplo: /clima Vigo")
         return
-    
+
     ciudad = " ".join(context.args)
     url = (
         f"http://api.openweathermap.org/data/2.5/weather?"
         f"q={ciudad}&appid={WEATHER_API_KEY}&units=metric&lang=es"
     )
-
     res = requests.get(url).json()
-    
+
     if res.get("cod") != 200:
         await update.message.reply_text("Ciudad no encontrada. Prueba otra.")
         return
