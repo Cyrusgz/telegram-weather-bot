@@ -6,12 +6,12 @@ from dotenv import load_dotenv
 from flask import Flask
 import threading
 
-# Cargar variables de entorno desde el archivo .env
+# Cargar variables de entorno desde .env
 load_dotenv()
 TOKEN = os.getenv("TOKEN")
 WEATHER_API_KEY = os.getenv("WEATHER_API_KEY")
 
-# Servidor web para keep alive
+# Flask app para keep alive
 app_web = Flask('')
 
 @app_web.route('/')
@@ -23,6 +23,7 @@ def run():
 
 def keep_alive():
     t = threading.Thread(target=run)
+    t.daemon = True
     t.start()
 
 def icono_clima(desc: str) -> str:
@@ -59,7 +60,7 @@ async def clima(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
         await update.message.reply_text("Por favor, escribe una ciudad. Ejemplo: /clima Vigo")
         return
-    
+
     ciudad = " ".join(context.args)
     url = (
         f"http://api.openweathermap.org/data/2.5/weather?"
@@ -67,7 +68,7 @@ async def clima(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
     res = requests.get(url).json()
-    
+
     if res.get("cod") != 200:
         await update.message.reply_text("Ciudad no encontrada. Prueba otra.")
         return
@@ -95,5 +96,3 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CommandHandler("clima", clima))
     app.run_polling()
-
-
