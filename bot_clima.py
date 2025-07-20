@@ -18,7 +18,8 @@ def home():
     return "Bot activo"
 
 def run_flask():
-    app_web.run(host='0.0.0.0', port=8080)
+    port = int(os.environ.get("PORT", 8080))  # Railway asigna el puerto dinámicamente
+    app_web.run(host='0.0.0.0', port=port)
 
 def start_flask():
     thread = threading.Thread(target=run_flask)
@@ -94,3 +95,4 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler("help", help_command))
     app.add_handler(CommandHandler("clima", clima))
     app.run_polling()
+
